@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Pathfinding Visualizer",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["main.py"],
+      "port": 0
+    }
+  ]
+}
