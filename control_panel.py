@@ -20,20 +20,10 @@ from constants import (
 
 
 class ControlPanel:
-    """Draws and manages the right-side UI panel.
-
-    Contains algorithm selector, speed slider, action buttons, and a
-    metrics display area. All UI elements are drawn manually with Pygame
-    primitives.
-    """
+    """Draws and manages the right-side UI panel."""
 
     def __init__(self, panel_x: int, panel_height: int):
-        """Initialize the ControlPanel.
-
-        Args:
-            panel_x: X pixel coordinate where the panel starts.
-            panel_height: Height of the panel in pixels.
-        """
+        """Set up fonts, default settings, and compute UI layout."""
         self.panel_x = panel_x
         self.panel_height = panel_height
         self.grid_size: int = DEFAULT_GRID_WIDTH
@@ -47,7 +37,6 @@ class ControlPanel:
         self._dragging_speed = False
         self._dragging_grid_size = False
 
-        # Build layout rects
         self._build_layout()
 
     def _build_layout(self) -> None:
@@ -110,22 +99,15 @@ class ControlPanel:
         self._metrics_y = y
 
     def draw(self, screen: pygame.Surface) -> None:
-        """Draw the entire control panel onto the screen.
-
-        Args:
-            screen: The Pygame display surface.
-        """
-        # Panel background
+        """Draw the full panel: background, buttons, sliders, and metrics."""
         panel_rect = pygame.Rect(self.panel_x, 0, PANEL_WIDTH, self.panel_height)
         pygame.draw.rect(screen, COLOR_PANEL_BG, panel_rect)
 
         x = self.panel_x + 15
 
-        # Title
         title = self._font_title.render("Pathfinder", True, COLOR_TEXT)
         screen.blit(title, (x, self._title_y))
 
-        # Algorithm selector label
         label = self._font.render("Algorithm", True, COLOR_TEXT)
         screen.blit(label, (x, self._algo_label_y))
 
@@ -165,18 +147,11 @@ class ControlPanel:
             text = self._font.render(btn_label, True, COLOR_BUTTON_TEXT)
             screen.blit(text, (rect.x + 10, rect.y + 7))
 
-        # Metrics
         self._draw_metrics_area(screen)
 
     def _draw_slider(self, screen: pygame.Surface, rect: pygame.Rect,
                      value: float) -> None:
-        """Draw a horizontal slider bar.
-
-        Args:
-            screen: Display surface.
-            rect: Bounding rect for the slider.
-            value: Normalized value 0.0 to 1.0.
-        """
+        """Draw a horizontal slider with a knob at the given normalized value (0–1)."""
         value = max(0.0, min(1.0, value))
         # Track
         pygame.draw.rect(screen, COLOR_BUTTON, rect, border_radius=4)
@@ -191,15 +166,10 @@ class ControlPanel:
         pygame.draw.rect(screen, COLOR_TEXT, knob_rect, border_radius=3)
 
     def _draw_metrics_area(self, screen: pygame.Surface) -> None:
-        """Draw the metrics display area.
-
-        Args:
-            screen: Display surface.
-        """
+        """Draw the metrics section with current algorithm stats."""
         x = self.panel_x + 15
         y = self._metrics_y
 
-        # Section header
         header = self._font.render("-- Metrics --", True, COLOR_TEXT)
         screen.blit(header, (x, y))
         y += 25
@@ -223,14 +193,7 @@ class ControlPanel:
             y += 20
 
     def handle_input(self, event: pygame.event.Event) -> str | None:
-        """Process a Pygame event on the panel.
-
-        Args:
-            event: The Pygame event to process.
-
-        Returns:
-            Action string if a button was clicked, or None.
-        """
+        """Process a click or drag on the panel; return an action string or None."""
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             pos = event.pos
 
@@ -284,11 +247,7 @@ class ControlPanel:
         self.grid_size = int(5 + ratio * 45)  # 5-50
 
     def get_settings(self) -> dict:
-        """Return current panel settings.
-
-        Returns:
-            Dict with grid_size, algorithm, and speed.
-        """
+        """Return the current algorithm, grid size, and speed settings."""
         return {
             "grid_size": self.grid_size,
             "algorithm": self.algorithm,
@@ -296,9 +255,5 @@ class ControlPanel:
         }
 
     def draw_metrics(self, metrics: dict) -> None:
-        """Store metrics for display.
-
-        Args:
-            metrics: Dict with nodes_explored, path_cost, time_elapsed.
-        """
+        """Store metrics dict for display in the next draw call."""
         self._metrics = metrics

@@ -17,22 +17,11 @@ from constants import (
 
 
 class Renderer:
-    """Handles all Pygame drawing for the grid area.
-
-    The Renderer only draws — it never modifies game state. It reads grid
-    data, path, open_set, and closed_set to determine cell colors.
-    """
+    """Draws the grid area each frame without modifying game state."""
 
     def __init__(self, screen: pygame.Surface, grid: list[list[int]],
                  start: tuple[int, int], end: tuple[int, int]):
-        """Initialize the Renderer.
-
-        Args:
-            screen: The main Pygame display surface.
-            grid: Reference to MapGenerator's 2D grid (0=open, 1=wall).
-            start: (row, col) of the start cell.
-            end: (row, col) of the goal cell.
-        """
+        """Set up drawing state and compute initial cell size."""
         self.screen = screen
         self.grid = grid
         self.start = start
@@ -43,11 +32,7 @@ class Renderer:
         self.cell_size = self._compute_cell_size()
 
     def _compute_cell_size(self) -> int:
-        """Calculate cell size so the grid fits in the available area.
-
-        Returns:
-            Pixel size for each grid cell.
-        """
+        """Calculate cell pixel size to fit the grid in the available area."""
         if not self.grid or not self.grid[0]:
             return 20
         available_width = self.screen.get_width() - PANEL_WIDTH
@@ -58,29 +43,18 @@ class Renderer:
 
     def set_grid(self, grid: list[list[int]], start: tuple[int, int],
                  end: tuple[int, int]) -> None:
-        """Update the grid reference and recalculate cell size.
-
-        Args:
-            grid: New grid data.
-            start: New start position.
-            end: New end position.
-        """
+        """Update the grid reference and recalculate cell size."""
         self.grid = grid
         self.start = start
         self.end = end
         self.cell_size = self._compute_cell_size()
 
     def draw_grid(self) -> None:
-        """Draw the full grid with cell backgrounds and grid lines.
-
-        Colors cells based on state: empty, wall, start, end, frontier,
-        explored, or final path.
-        """
+        """Draw all cells with appropriate colors and grid lines."""
         grid_height = len(self.grid)
         grid_width = len(self.grid[0]) if self.grid else 0
         path_set = set(self.path)
 
-        # Fill grid background
         grid_pixel_w = grid_width * self.cell_size
         grid_pixel_h = grid_height * self.cell_size
         pygame.draw.rect(self.screen, COLOR_BACKGROUND,
@@ -93,7 +67,6 @@ class Renderer:
                 pos = (row, col)
                 rect = pygame.Rect(x, y, self.cell_size, self.cell_size)
 
-                # Determine color by priority
                 if pos == self.start:
                     color = COLOR_START
                 elif pos == self.end:
@@ -110,15 +83,10 @@ class Renderer:
                     color = COLOR_EMPTY
 
                 pygame.draw.rect(self.screen, color, rect)
-
-                # Grid line
                 pygame.draw.rect(self.screen, COLOR_GRID_LINE, rect, 1)
 
     def draw_path(self) -> None:
-        """Overlay the final path on the grid in the path color.
-
-        Draws path cells (excluding start/end which keep their own color).
-        """
+        """Draw final path cells, skipping start and end."""
         for pos in self.path:
             if pos == self.start or pos == self.end:
                 continue
@@ -130,11 +98,7 @@ class Renderer:
             pygame.draw.rect(self.screen, COLOR_GRID_LINE, rect, 1)
 
     def draw_explored(self) -> None:
-        """Overlay explored and frontier nodes on the grid.
-
-        Explored nodes shown in pale yellow, frontier in light blue.
-        Skips start, end, walls, and path cells.
-        """
+        """Draw explored (yellow) and frontier (blue) cells on the grid."""
         path_set = set(self.path)
 
         for pos in self.closed_set:
@@ -164,15 +128,7 @@ class Renderer:
         self.draw_grid()
 
     def pixel_to_grid(self, pixel_x: int, pixel_y: int) -> tuple[int, int] | None:
-        """Convert pixel coordinates to grid (row, col).
-
-        Args:
-            pixel_x: X pixel coordinate.
-            pixel_y: Y pixel coordinate.
-
-        Returns:
-            (row, col) tuple, or None if outside the grid area.
-        """
+        """Convert pixel coordinates to (row, col), or None if outside the grid."""
         if not self.grid or not self.grid[0]:
             return None
         grid_height = len(self.grid)

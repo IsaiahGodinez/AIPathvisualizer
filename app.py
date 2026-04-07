@@ -18,11 +18,7 @@ from constants import (
 
 
 class App:
-    """Main application class that runs the Pygame game loop.
-
-    Wires together MapGenerator, Agent, Renderer, and ControlPanel.
-    Handles events, algorithm stepping, and drawing each frame.
-    """
+    """Main game loop tying together MapGenerator, Agent, Renderer, and ControlPanel."""
 
     def __init__(self):
         """Initialize Pygame, create the window, and set up all components."""
@@ -61,7 +57,7 @@ class App:
         self.is_running = False
         self.is_paused = False
         self._step_accumulator = 0.0  # ms accumulated for time-based stepping
-        self._running = True  # Main loop flag
+        self._running = True
 
     def run(self) -> None:
         """Main Pygame game loop: handle events, update state, draw."""
@@ -96,12 +92,7 @@ class App:
                     self.map_generator.toggle_wall(grid_pos)
 
     def _handle_action(self, action: str) -> None:
-        """Handle a control panel action.
-
-        Args:
-            action: One of "start", "pause", "reset", "generate",
-                    "clear_walls".
-        """
+        """Dispatch a control panel action string to the appropriate handler."""
         if action == "start":
             if self.agent.is_complete:
                 self.reset()
@@ -173,11 +164,7 @@ class App:
         self.reset()
 
     def _update(self, dt: float) -> None:
-        """Update algorithm state based on elapsed time.
-
-        Args:
-            dt: Milliseconds since last frame.
-        """
+        """Step the algorithm based on elapsed time (dt in ms)."""
         if not self.is_running or self.is_paused:
             return
 
